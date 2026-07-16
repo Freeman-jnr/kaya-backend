@@ -1,0 +1,138 @@
+// Prisma schema for the Kaya backend.
+//
+// Deliberately no models yet. Models are added incrementally by the
+// module that first needs them (Module 5 adds User + Business for
+// /api/v1/auth/me), not pre-designed here — this keeps schema
+// ownership aligned with the module build order instead of guessing
+// the full data model up front.
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id          String    @id
+  email       String    @unique
+  fullName    String
+  phone       String?
+  role        String    @default("owner")
+  businessId  String?
+  business    Business? @relation(fields: [businessId], references: [id])
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+
+  @@map("users")
+}
+
+model Business {
+  id          String     @id @default(cuid())
+  name        String
+  category    String
+  location    String
+  currency    String     @default("NGN")
+  ownerId     String
+  users       User[]
+  customers   Customer[]
+  orders      Order[]
+  payments    Payment[]
+  expenses    Expense[]
+  tasks       Task[]
+  reminders   Reminder[]
+  createdAt   DateTime   @default(now())
+  updatedAt   DateTime   @updatedAt
+
+  @@map("businesses")
+}
+
+model Customer {
+  id              String   @id @default(cuid())
+  name            String
+  email           String?
+  phone           String?
+  address         String?
+  totalSpent      Float    @default(0)
+  outstanding     Float    @default(0)
+  status          String   @default("active")
+  lastInteraction String?
+  businessId      String
+  business        Business @relation(fields: [businessId], references: [id])
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+
+  @@map("customers")
+}
+
+model Order {
+  id            String   @id @default(cuid())
+  customerName  String
+  totalAmount   Float
+  notes         String?
+  status        String   @default("Pending")
+  businessId    String
+  business      Business @relation(fields: [businessId], references: [id])
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+
+  @@map("orders")
+}
+
+model Payment {
+  id            String   @id @default(cuid())
+  customerName  String
+  amount        Float
+  method        String   @default("Cash")
+  notes         String?
+  businessId    String
+  business      Business @relation(fields: [businessId], references: [id])
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+
+  @@map("payments")
+}
+
+model Expense {
+  id            String   @id @default(cuid())
+  title         String
+  amount        Float
+  category      String   @default("General")
+  notes         String?
+  businessId    String
+  business      Business @relation(fields: [businessId], references: [id])
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+
+  @@map("expenses")
+}
+
+model Task {
+  id            String   @id @default(cuid())
+  title         String
+  dueDate       String?
+  priority      String   @default("medium")
+  notes         String?
+  completed     Boolean  @default(false)
+  source        String   @default("manual")
+  businessId    String
+  business      Business @relation(fields: [businessId], references: [id])
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+
+  @@map("tasks")
+}
+
+model Reminder {
+  id            String   @id @default(cuid())
+  message       String
+  remindAt      String?
+  businessId    String
+  business      Business @relation(fields: [businessId], references: [id])
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+
+  @@map("reminders")
+}
