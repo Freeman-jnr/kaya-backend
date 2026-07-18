@@ -35,10 +35,7 @@ export function createApp(): Application {
   app.get('/health', (_req: Request, res: Response) => {
     ApiResponse.success(res, {
       message: 'Kaya backend is healthy',
-      data: {
-        timestamp: new Date().toISOString(),
-        allowedOrigins: env.CORS_ORIGIN.split(',').map((origin: string) => origin.trim().replace(/\/$/, '')),
-      },
+      data: { timestamp: new Date().toISOString() },
     });
   });
 
