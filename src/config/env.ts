@@ -29,9 +29,8 @@ const envSchema = z.object({
   // --- Prisma / Postgres (data access layer) ---
   DATABASE_URL: z.string().min(1, 'DATABASE_URL is required'),
 
-  // --- Dify AI integration ---
-  DIFY_API_URL: z.string().url({ message: 'DIFY_API_URL must be a valid URL' }).optional().or(z.literal('')),
-  DIFY_API_KEY: z.string().min(1, 'DIFY_API_KEY is required').optional().or(z.literal('')),
+  // --- Kaya AI Microservice ---
+  KAYA_AI_URL: z.string().url().default('http://localhost:3000'),
 });
 
 export type Env = z.infer<typeof envSchema>;
