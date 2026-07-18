@@ -1,7 +1,6 @@
 import express, { Application, Request, Response } from 'express';
 import pinoHttp from 'pino-http';
 import { logger } from '@config/logger';
-import { env } from '@config/env';
 import { corsMiddleware, helmetMiddleware, rateLimitMiddleware } from '@middleware/security';
 import { errorHandler, notFoundHandler } from '@middleware/errorHandler';
 import { requestLogger } from '@middleware/requestLogger';
