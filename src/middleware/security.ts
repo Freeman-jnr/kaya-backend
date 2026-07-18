@@ -16,7 +16,10 @@ export const corsMiddleware = cors({
     if (!origin || allowedOrigins.includes(origin)) {
       callback(null, true);
     } else {
-      callback(new Error(`Origin ${origin} not allowed by CORS`));
+      // Return null/false — do NOT pass an Error, which would cause a 500.
+      // The cors package will respond with no Access-Control-Allow-Origin header,
+      // causing the browser to block the request with a standard CORS error.
+      callback(null, false);
     }
   },
   credentials: true,
