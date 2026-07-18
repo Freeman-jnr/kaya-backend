@@ -1,6 +1,7 @@
 import express, { Application, Request, Response } from 'express';
 import pinoHttp from 'pino-http';
 import { logger } from '@config/logger';
+import { env } from '@config/env';
 import { corsMiddleware, helmetMiddleware, rateLimitMiddleware } from '@middleware/security';
 import { errorHandler, notFoundHandler } from '@middleware/errorHandler';
 import { requestLogger } from '@middleware/requestLogger';
@@ -34,7 +35,10 @@ export function createApp(): Application {
   app.get('/health', (_req: Request, res: Response) => {
     ApiResponse.success(res, {
       message: 'Kaya backend is healthy',
-      data: { timestamp: new Date().toISOString() },
+      data: {
+        timestamp: new Date().toISOString(),
+        allowedOrigins: env.CORS_ORIGIN.split(',').map((origin: string) => origin.trim().replace(/\/$/, '')),
+      },
     });
   });
 
