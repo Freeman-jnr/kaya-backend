@@ -37,6 +37,18 @@ export const corsMiddleware = cors({
 
 export const helmetMiddleware = helmet({
   crossOriginResourcePolicy: { policy: 'cross-origin' },
+  contentSecurityPolicy: {
+    directives: {
+      defaultSrc: ["'self'"],
+      scriptSrc: ["'self'", "https://trusted-scripts.example.com"],
+      styleSrc: ["'self'", "https://trusted-styles.example.com", "'unsafe-inline'"],
+      imgSrc: ["'self'", "data:", "https://trusted-images.example.com"],
+      upgradeInsecureRequests: [],
+    },
+  },
+  frameguard: {
+    action: 'deny',
+  },
 });
 
 export const rateLimitMiddleware = rateLimit({
@@ -47,6 +59,18 @@ export const rateLimitMiddleware = rateLimit({
   message: {
     success: false,
     message: 'Too many requests. Please try again later.',
+    errors: [],
+  },
+});
+
+export const loginRateLimitMiddleware = rateLimit({
+  windowMs: 1 * 60 * 1000, // 1 minute
+  max: 5, // Limit each IP to 5 login requests per windowMs
+  standardHeaders: true,
+  legacyHeaders: false,
+  message: {
+    success: false,
+    message: 'Too many login attempts from this IP, please try again after a minute.',
     errors: [],
   },
 });

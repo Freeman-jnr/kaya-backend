@@ -1,11 +1,12 @@
 import { Router } from 'express';
 import { authController } from '@controllers/authController';
 import { requireAuth } from '@middleware/auth';
+import { loginRateLimitMiddleware } from '@middleware/security';
 
 const router = Router();
 
 router.post('/register', authController.register);
-router.post('/login', authController.login);
+router.post('/login', loginRateLimitMiddleware, authController.login);
 router.get('/me', requireAuth(), authController.me);
 
 export default router;
