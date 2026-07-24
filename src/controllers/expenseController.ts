@@ -10,14 +10,31 @@ export const expenseController = {
       throw new AppError('No business is linked to this account.', 404);
     }
 
-    const expenses = await prisma.expense.findMany({
-      where: { businessId: req.user.businessId },
-      orderBy: { createdAt: 'desc' },
-    });
+    const page = Math.max(1, parseInt(req.query.page as string) || 1);
+    const limit = Math.max(1, parseInt(req.query.limit as string) || 50);
+    const skip = (page - 1) * limit;
+
+    const [total, expenses] = await Promise.all([
+      prisma.expense.count({ where: { businessId: req.user.businessId } }),
+      prisma.expense.findMany({
+        where: { businessId: req.user.businessId },
+        skip,
+        take: limit,
+        orderBy: { createdAt: 'desc' },
+        select: {
+          id: true,
+          title: true,
+          amount: true,
+          category: true,
+          createdAt: true,
+        },
+      }),
+    ]);
 
     ApiResponse.success(res, {
       message: 'Expenses retrieved successfully.',
       data: expenses,
+      meta: { pagination: { total, page, limit, totalPages: Math.ceil(total / limit) } },
     });
   }),
 

@@ -10,14 +10,31 @@ export const paymentController = {
       throw new AppError('No business is linked to this account.', 404);
     }
 
-    const payments = await prisma.payment.findMany({
-      where: { businessId: req.user.businessId },
-      orderBy: { createdAt: 'desc' },
-    });
+    const page = Math.max(1, parseInt(req.query.page as string) || 1);
+    const limit = Math.max(1, parseInt(req.query.limit as string) || 50);
+    const skip = (page - 1) * limit;
+
+    const [total, payments] = await Promise.all([
+      prisma.payment.count({ where: { businessId: req.user.businessId } }),
+      prisma.payment.findMany({
+        where: { businessId: req.user.businessId },
+        skip,
+        take: limit,
+        orderBy: { createdAt: 'desc' },
+        select: {
+          id: true,
+          customerName: true,
+          amount: true,
+          method: true,
+          createdAt: true,
+        },
+      }),
+    ]);
 
     ApiResponse.success(res, {
       message: 'Payments retrieved successfully.',
       data: payments,
+      meta: { pagination: { total, page, limit, totalPages: Math.ceil(total / limit) } },
     });
   }),
 

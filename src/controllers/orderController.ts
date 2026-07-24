@@ -12,14 +12,31 @@ export const orderController = {
       throw new AppError('No business is linked to this account.', 404);
     }
 
-    const orders = await prisma.order.findMany({
-      where: { businessId: req.user.businessId },
-      orderBy: { createdAt: 'desc' },
-    });
+    const page = Math.max(1, parseInt(req.query.page as string) || 1);
+    const limit = Math.max(1, parseInt(req.query.limit as string) || 50);
+    const skip = (page - 1) * limit;
+
+    const [total, orders] = await Promise.all([
+      prisma.order.count({ where: { businessId: req.user.businessId } }),
+      prisma.order.findMany({
+        where: { businessId: req.user.businessId },
+        skip,
+        take: limit,
+        orderBy: { createdAt: 'desc' },
+        select: {
+          id: true,
+          customerName: true,
+          totalAmount: true,
+          status: true,
+          createdAt: true,
+        },
+      }),
+    ]);
 
     ApiResponse.success(res, {
       message: 'Orders retrieved successfully.',
       data: orders,
+      meta: { pagination: { total, page, limit, totalPages: Math.ceil(total / limit) } },
     });
   }),
 

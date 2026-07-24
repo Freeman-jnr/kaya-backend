@@ -12,12 +12,12 @@ export const timelineController = {
     }
 
     const [customers, orders, payments, expenses, reminders, tasks] = await Promise.all([
-      prisma.customer.findMany({ where: { businessId: req.user.businessId }, select: { id: true, name: true, createdAt: true } }),
-      prisma.order.findMany({ where: { businessId: req.user.businessId }, select: { id: true, customerName: true, totalAmount: true, createdAt: true } }),
-      prisma.payment.findMany({ where: { businessId: req.user.businessId }, select: { id: true, customerName: true, amount: true, createdAt: true } }),
-      prisma.expense.findMany({ where: { businessId: req.user.businessId }, select: { id: true, title: true, amount: true, createdAt: true } }),
-      prisma.reminder.findMany({ where: { businessId: req.user.businessId }, select: { id: true, message: true, createdAt: true } }),
-      prisma.task.findMany({ where: { businessId: req.user.businessId }, select: { id: true, title: true, dueDate: true, createdAt: true } }),
+      prisma.customer.findMany({ where: { businessId: req.user.businessId }, take: 20, orderBy: { createdAt: 'desc' }, select: { id: true, name: true, createdAt: true } }),
+      prisma.order.findMany({ where: { businessId: req.user.businessId }, take: 20, orderBy: { createdAt: 'desc' }, select: { id: true, customerName: true, totalAmount: true, createdAt: true } }),
+      prisma.payment.findMany({ where: { businessId: req.user.businessId }, take: 20, orderBy: { createdAt: 'desc' }, select: { id: true, customerName: true, amount: true, createdAt: true } }),
+      prisma.expense.findMany({ where: { businessId: req.user.businessId }, take: 20, orderBy: { createdAt: 'desc' }, select: { id: true, title: true, amount: true, createdAt: true } }),
+      prisma.reminder.findMany({ where: { businessId: req.user.businessId }, take: 20, orderBy: { createdAt: 'desc' }, select: { id: true, message: true, createdAt: true } }),
+      prisma.task.findMany({ where: { businessId: req.user.businessId }, take: 20, orderBy: { createdAt: 'desc' }, select: { id: true, title: true, dueDate: true, createdAt: true } }),
     ]);
 
     const feed = buildTimelineFeed([

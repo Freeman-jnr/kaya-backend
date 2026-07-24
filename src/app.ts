@@ -1,4 +1,5 @@
 import express, { Application, Request, Response } from 'express';
+import compression from 'compression';
 import pinoHttp from 'pino-http';
 import { logger } from '@config/logger';
 import { corsMiddleware, helmetMiddleware, rateLimitMiddleware } from '@middleware/security';
@@ -24,6 +25,7 @@ export function createApp(): Application {
   // --- Security & parsing (order matters) ---
   app.use(helmetMiddleware);
   app.use(corsMiddleware);
+  app.use(compression());
   app.use(express.json({ limit: '1mb' }));
   app.use(express.urlencoded({ extended: true }));
   app.use(rateLimitMiddleware);

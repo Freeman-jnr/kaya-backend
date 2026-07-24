@@ -10,14 +10,32 @@ export const taskController = {
       throw new AppError('No business is linked to this account.', 404);
     }
 
-    const tasks = await prisma.task.findMany({
-      where: { businessId: req.user.businessId },
-      orderBy: { createdAt: 'desc' },
-    });
+    const page = Math.max(1, parseInt(req.query.page as string) || 1);
+    const limit = Math.max(1, parseInt(req.query.limit as string) || 50);
+    const skip = (page - 1) * limit;
+
+    const [total, tasks] = await Promise.all([
+      prisma.task.count({ where: { businessId: req.user.businessId } }),
+      prisma.task.findMany({
+        where: { businessId: req.user.businessId },
+        skip,
+        take: limit,
+        orderBy: { createdAt: 'desc' },
+        select: {
+          id: true,
+          title: true,
+          dueDate: true,
+          priority: true,
+          status: true,
+          createdAt: true,
+        },
+      }),
+    ]);
 
     ApiResponse.success(res, {
       message: 'Tasks retrieved successfully.',
       data: tasks,
+      meta: { pagination: { total, page, limit, totalPages: Math.ceil(total / limit) } },
     });
   }),
 

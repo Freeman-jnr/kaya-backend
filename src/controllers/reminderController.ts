@@ -10,14 +10,30 @@ export const reminderController = {
       throw new AppError('No business is linked to this account.', 404);
     }
 
-    const reminders = await prisma.reminder.findMany({
-      where: { businessId: req.user.businessId },
-      orderBy: { createdAt: 'desc' },
-    });
+    const page = Math.max(1, parseInt(req.query.page as string) || 1);
+    const limit = Math.max(1, parseInt(req.query.limit as string) || 50);
+    const skip = (page - 1) * limit;
+
+    const [total, reminders] = await Promise.all([
+      prisma.reminder.count({ where: { businessId: req.user.businessId } }),
+      prisma.reminder.findMany({
+        where: { businessId: req.user.businessId },
+        skip,
+        take: limit,
+        orderBy: { createdAt: 'desc' },
+        select: {
+          id: true,
+          message: true,
+          remindAt: true,
+          createdAt: true,
+        },
+      }),
+    ]);
 
     ApiResponse.success(res, {
       message: 'Reminders retrieved successfully.',
       data: reminders,
+      meta: { pagination: { total, page, limit, totalPages: Math.ceil(total / limit) } },
     });
   }),
 
