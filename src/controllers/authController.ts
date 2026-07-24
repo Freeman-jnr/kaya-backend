@@ -22,6 +22,25 @@ export const authController = {
     });
   }),
 
+  updateMe: asyncHandler(async (req: Request, res: Response) => {
+    if (!req.user) {
+      throw new AppError('Authentication required.', 401);
+    }
+
+    const { fullName, phone } = req.body;
+
+    const user = await prisma.user.update({
+      where: { id: req.user.id },
+      data: { fullName, phone },
+      include: { business: true },
+    });
+
+    ApiResponse.success(res, {
+      message: 'User profile updated successfully.',
+      data: user,
+    });
+  }),
+
   register: asyncHandler(async (req: Request, res: Response) => {
     const { email, password, fullName, phone, businessName, businessCategory, location } = req.body as {
       email?: string;

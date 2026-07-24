@@ -17,6 +17,7 @@ import reminderRoutes from '@routes/reminderRoutes';
 import timelineRoutes from '@routes/timelineRoutes';
 import searchRoutes from '@routes/searchRoutes';
 import dashboardRoutes from '@routes/dashboardRoutes';
+import notificationRoutes from '@routes/notificationRoutes';
 import aiRoutes from '@routes/aiRoutes';
 
 export function createApp(): Application {
@@ -51,6 +52,7 @@ export function createApp(): Application {
   app.use('/api/v1/timeline', timelineRoutes);
   app.use('/api/v1/search', searchRoutes);
   app.use('/api/v1/dashboard', dashboardRoutes);
+  app.use('/api/v1/notifications', notificationRoutes);
   app.use('/api/v1/ai', aiRoutes);
 
   // --- 404 + centralized error handling (must be last) ---
