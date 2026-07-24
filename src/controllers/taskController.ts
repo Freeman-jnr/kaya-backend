@@ -26,7 +26,7 @@ export const taskController = {
           title: true,
           dueDate: true,
           priority: true,
-          status: true,
+          completed: true,
           createdAt: true,
         },
       }),
